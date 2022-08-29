@@ -1,0 +1,35 @@
+*.pyc
+*.sql
+*.sqlite3
+*.sqlite3-journal
+/virtualenv
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+*.db
+
+# logging
+loghistory.txt
+
+# sphinx builds
+build/
+
+# python build info
+*.egg-info
+
+# testing/linting
+.nox
+pylama_report
+.pytest_cache
+.mypy_cache
+lint_report
+pylint_report*
+flake8_report*
+
+# pytest-cov
+.coverage
+coverage.xml
+htmlcov/
+
+dist
