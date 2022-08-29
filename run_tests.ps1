@@ -22,6 +22,7 @@ if ($LASTEXITCODE -ne 0){
     exit $LASTEXITCODE
 }
 
+# build source distribution and install
 if ($build) {
     python setup.py sdist
     $dist = ls dist/

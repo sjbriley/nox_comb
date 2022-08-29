@@ -1,0 +1,5 @@
+"""Version test"""
+from nox_comb.version import __version__
+
+def test_version():
+    assert isinstance(__version__, float)
