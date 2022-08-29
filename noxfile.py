@@ -23,13 +23,13 @@ def mypy(session):
         'mypy', 'src/nox_comb',
         '--config-file', 'nox.ini',)
 
-# @nox.session
-# def pytest(session):
-#     session.install('pytest', 'pytest-cov', '-r', 'requirements.txt')
-#     session.run(
-#         'pytest', 'src/nox_comb',
-#         '--cov-config=.coveragerc',
-#         '--cov-report', 'html',
-#         '--cov-report', 'xml',
-#         '--cov=budget_insights',
-#         '--cov-fail-under=80')
+@nox.session
+def pytest(session):
+    session.install('pytest', 'pytest-cov', '-r', 'requirements.txt')
+    session.run(
+        'pytest', 'src/nox_comb',
+        '--cov-config=.coveragerc',
+        '--cov-report', 'html',
+        '--cov-report', 'xml',
+        '--cov=budget_insights',
+        '--cov-fail-under=80')
