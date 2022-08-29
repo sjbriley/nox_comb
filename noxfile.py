@@ -18,18 +18,18 @@ def pylint(session):
 
 @nox.session
 def mypy(session):
-    session.install('mypy', 'lxml')
+    session.install('mypy')
     session.run(
         'mypy', 'src/nox_comb',
         '--config-file', 'nox.ini',)
 
 @nox.session
 def pytest(session):
-    session.install('pytest', 'pytest-cov', '-r', 'requirements.txt')
+    session.install('pytest', 'pytest-cov', '.')
     session.run(
-        'pytest', 'src/nox_comb',
+        'pytest',
         '--cov-config=.coveragerc',
         '--cov-report', 'html',
         '--cov-report', 'xml',
-        '--cov=budget_insights',
-        '--cov-fail-under=80')
+        '--cov=nox_comb',
+        '--cov-fail-under=15')

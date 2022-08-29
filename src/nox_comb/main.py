@@ -26,7 +26,7 @@ class Linter:
         self._logger = logging.getLogger(__name__)
         self._temp_files = defaultdict(list)
         self._logger.setLevel(logging.DEBUG)
-        self.args: argparse.Namespace
+        self._args: argparse.Namespace
         self._parse_args()
 
     def run_nox(self) -> None:
@@ -37,7 +37,7 @@ class Linter:
             FileNotFoundError: If nox file cannot be found
         """
 
-        nox_file = pathlib.Path(self.args.nox_file)
+        nox_file = pathlib.Path(self._args.nox_file)
         if not nox_file.exists():
             raise FileNotFoundError(f"Nox file does not exist at {str(nox_file)}")
         with open(nox_file, 'r') as open_file:
@@ -57,7 +57,7 @@ class Linter:
                         continue
 
     def _parse_args(self) -> None:
-        """Parses all user arguments into self.args
+        """Parses all user arguments into self._args
         """
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -73,19 +73,19 @@ class Linter:
             '--enabled_output', default='', type=str, dest='enabled_output',
             help='Enable reporting for specific packages, overrides disabled_output')
         parser.add_argument('args', nargs='*')
-        self.args, self.args.rem = parser.parse_known_args()
-        self.args.disabled_output = [
-            linter.lower() for linter in self.args.disabled_output.split(',')]
-        self.args.enabled_output = [
-            linter.lower() for linter in self.args.enabled_output.split(',')]
-        if '' in self.args.enabled_output:
-            self.args.enabled_output.remove('')
-        if self.args.enabled_output != []:
-            self.args.disabled_output = self.ALL_PARSERS
-            for opt in self.args.enabled_output:
-                if opt in self.args.disabled_output:
-                    self.args.disabled_output.remove(opt)
-        self._logger.debug('Args are %s', str(self.args))
+        self._args, self._args.rem = parser.parse_known_args()
+        self._args.disabled_output = [
+            linter.lower() for linter in self._args.disabled_output.split(',')]
+        self._args.enabled_output = [
+            linter.lower() for linter in self._args.enabled_output.split(',')]
+        if '' in self._args.enabled_output:
+            self._args.enabled_output.remove('')
+        if self._args.enabled_output != []:
+            self._args.disabled_output = self.ALL_PARSERS
+            for opt in self._args.enabled_output:
+                if opt in self._args.disabled_output:
+                    self._args.disabled_output.remove(opt)
+        self._logger.debug('Args are %s', str(self._args))
 
     def _generate_temp_nox(self, contents: str) -> pathlib.Path:
         """Generates a temporary nox file with modified output contents.
@@ -97,12 +97,12 @@ class Linter:
             pathlib.Path: path to temporary nox file
         """
         if 'pylint' in contents.lower():
-            if 'pylint' in self.args.disabled_output:
+            if 'pylint' in self._args.disabled_output:
                 self._logger.debug('Not including pylint into combined output, skipping...')
             else:
                 contents = self._find_output(contents, self.PYLINT_PAT, 'pylint')
         if 'flake8' in contents.lower():
-            if 'flake8' in self.args.disabled_output:
+            if 'flake8' in self._args.disabled_output:
                 self._logger.debug('Not including flake8 into combined output, skipping...')
             else:
                 contents = self._find_output(contents, self.FLAKE8_PAT, 'flake8')
@@ -121,7 +121,7 @@ class Linter:
         Returns:
             Tuple(bytes, bytes): contents of pytest output and mypy output
         """
-        rem = ' '.join(self.args.rem)
+        rem = ' '.join(self._args.rem)
         cmd = f'nox -f {temp_nox} --forcecolor {rem}'.split(' ')
         if '' in cmd:
             cmd.remove('')
@@ -139,9 +139,9 @@ class Linter:
                 mypy = False
                 while True:
                     line = process.stdout.readline()  # type: ignore
-                    if 'pytest' not in self.args.disabled_output:
+                    if 'pytest' not in self._args.disabled_output:
                         pytest_output, pytest = self._process_pytest(line, pytest_output, pytest)
-                    if 'mypy' not in self.args.disabled_output:
+                    if 'mypy' not in self._args.disabled_output:
                         mypy_output, mypy = self._process_mypy(line, mypy_output, mypy)
                     if not line:
                         break
@@ -179,9 +179,9 @@ class Linter:
                     self._logger.debug(
                         'Could not write contents from file %s', str(temp_file[1]),
                         exc_info=True)
-        with open(self.args.output_file, 'wb') as write_file:
+        with open(self._args.output_file, 'wb') as write_file:
             write_file.write(contents)
-        self._logger.info('Wrote contents to %s', self.args.output_file)
+        self._logger.info('Wrote contents to %s', self._args.output_file)
 
     def _find_output(self, contents: str, pattern: str, name: str) -> str:
         """Searches contents of nox file for output file for all linters
